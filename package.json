@@ -1,6 +1,6 @@
 {
   "name": "serverless-api-mockery",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A flexible API mocking library with customizable storage backends",
   "main": "index.js",
   "scripts": {
