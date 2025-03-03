@@ -85,30 +85,51 @@ The mock API data is configured in a JSON format as follows:
 {
   "routes": [
     {
-      "method": "get",
+      "id": "getUserById",
+      "name": "Get User By ID",
+      "method": "GET",
       "path": "/users/:id",
       "statusCode": 200,
       "headers": {
-        "Content-Type": "application/json",
-        "X-Custom-Header": "custom-value"
+        "Content-Type": "application/json"
       },
-      "delay": 500,
+      "delay": 1000,
       "response": {
         "id": "{params.id}",
-        "name": "John Doe",
-        "email": "john@example.com",
-        "queryParam": "{query.sort}"
+        "name": "User {params.id}",
+        "requestedQuery": "{query.include}"
       }
     },
     {
-      "method": "post",
+      "id": "searchUsers",
+      "name": "Search Users",
+      "method": "GET",
+      "path": "/users",
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "delay": 1000,
+      "response": {
+        "query": "{query.q}",
+        "sort": "{query.sort}",
+        "limit": "{query.limit}",
+        "users": [
+          { "id": 1, "name": "John" },
+          { "id": 2, "name": "Jane" }
+        ]
+      }
+    },
+    {
+      "id": "createUser",
+      "name": "Create User",
+      "method": "POST",
       "path": "/users",
       "statusCode": 201,
       "response": {
-        "id": "new-user-123",
-        "name": "{body.name}",
-        "email": "{body.email}",
-        "created": true
+        "message": "User created successfully",
+        "username": "{body.username}",
+        "email": "{body.email}"
       }
     }
   ],
@@ -148,6 +169,19 @@ Retrieves the current mock API configuration from the storage adapter.
 #### `saveApiData(data)`
 
 Saves updated mock API configuration to the storage adapter.
+
+### Route Configuration
+
+Each route in the configuration can have the following properties:
+
+- `id`: Unique identifier for the route (alphanumeric, used for referencing)
+- `name`: Human-readable name for the route (descriptive text)
+- `method`: HTTP method (e.g., "GET", "POST", "PUT", "DELETE")
+- `path`: URL path pattern, can include parameters prefixed with `:` (e.g., `/users/:id`)
+- `statusCode`: HTTP status code to return (defaults to 200)
+- `headers`: Response headers object
+- `delay`: Optional delay in milliseconds before responding
+- `response`: Response body template (can include parameter placeholders)
 
 ### Storage Adapters
 
