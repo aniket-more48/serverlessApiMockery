@@ -77,6 +77,37 @@ app.use(mockApi.middleware());
 exports.handler = serverless(app);
 ```
 
+## Lambda Catch-All Pattern
+
+When deploying to AWS Lambda using API Gateway, it's common to define a catch-all route to handle all incoming requests. This ensures that your mock API correctly processes any request path and method without needing explicit definitions for each one.
+
+### Example `serverless.yml` Configuration
+
+```yaml
+service: serverless-api-mockery
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-west-2
+  memorySize: 128
+  timeout: 10
+
+functions:
+  api:
+    handler: index.handler
+    events:
+      - http:
+          path: /{proxy+}
+          method: any
+```
+
+### Explanation
+- `path: /{proxy+}`: This catch-all pattern (`{proxy+}`) ensures that all requests to any route are forwarded to your Lambda function.
+- `method: any`: Allows the function to handle GET, POST, PUT, DELETE, and any other HTTP method.
+
+By using this configuration, your mock API server will be able to respond dynamically to any route, making it a seamless testing tool for serverless applications.
+
 ## Configuration Format
 
 The mock API data is configured in a JSON format as follows:
@@ -139,6 +170,19 @@ The mock API data is configured in a JSON format as follows:
 }
 ```
 
+### Route Configuration
+
+Each route in the configuration can have the following properties:
+
+- `id`: Unique identifier for the route (alphanumeric, used for referencing)
+- `name`: Human-readable name for the route (descriptive text)
+- `method`: HTTP method (e.g., "GET", "POST", "PUT", "DELETE")
+- `path`: URL path pattern, can include parameters prefixed with `:` (e.g., `/users/:id`)
+- `statusCode`: HTTP status code to return (defaults to 200)
+- `headers`: Response headers object
+- `delay`: Optional delay in milliseconds before responding
+- `response`: Response body template (can include parameter placeholders)
+
 ## API
 
 ### Constructor
@@ -170,28 +214,15 @@ Retrieves the current mock API configuration from the storage adapter.
 
 Saves updated mock API configuration to the storage adapter.
 
-### Route Configuration
+## Storage Adapters
 
-Each route in the configuration can have the following properties:
-
-- `id`: Unique identifier for the route (alphanumeric, used for referencing)
-- `name`: Human-readable name for the route (descriptive text)
-- `method`: HTTP method (e.g., "GET", "POST", "PUT", "DELETE")
-- `path`: URL path pattern, can include parameters prefixed with `:` (e.g., `/users/:id`)
-- `statusCode`: HTTP status code to return (defaults to 200)
-- `headers`: Response headers object
-- `delay`: Optional delay in milliseconds before responding
-- `response`: Response body template (can include parameter placeholders)
-
-### Storage Adapters
-
-#### Memory Adapter
+### Memory Adapter
 
 ```javascript
 const memoryAdapter = new ServerlessApiMockery.StorageAdapter.Memory();
 ```
 
-#### S3 Adapter
+### S3 Adapter
 
 ```javascript
 const s3Adapter = new ServerlessApiMockery.StorageAdapter.S3({
@@ -203,7 +234,7 @@ const s3Adapter = new ServerlessApiMockery.StorageAdapter.S3({
 });
 ```
 
-#### File System Adapter
+### File System Adapter
 
 ```javascript
 const fsAdapter = new ServerlessApiMockery.StorageAdapter.FileSystem({

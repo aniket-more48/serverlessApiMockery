@@ -1,6 +1,6 @@
 {
   "name": "serverless-api-mockery",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A flexible API mocking library with customizable storage backends",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,12 @@
     "api",
     "testing",
     "development",
-    "serverless"
+    "serverless",
+    "lambda",
+    "aws",
+    "express",
+    "dummy",
+    "data"
   ],
   "author": "Aniket More",
   "license": "MIT",
