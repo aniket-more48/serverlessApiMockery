@@ -163,10 +163,7 @@ The mock API data is configured in a JSON format as follows:
         "email": "{body.email}"
       }
     }
-  ],
-  "mockData": {
-    // Additional data you might want to store
-  }
+  ]
 }
 ```
 
