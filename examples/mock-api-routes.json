@@ -37,21 +37,21 @@
         "limit": "{query.limit}",
         "timestamp": "{date:currentDate}",
         "users": [
-          { 
-            "id": 1, 
-            "name": "John Doe", 
+          {
+            "id": 1,
+            "name": "John Doe",
             "email": "john@example.com",
             "role": "admin"
           },
-          { 
-            "id": 2, 
-            "name": "Jane Smith", 
+          {
+            "id": 2,
+            "name": "Jane Smith",
             "email": "jane@example.com",
             "role": "user"
           },
-          { 
-            "id": 3, 
-            "name": "Bob Johnson", 
+          {
+            "id": 3,
+            "name": "Bob Johnson",
             "email": "bob@example.com",
             "role": "user"
           }
@@ -107,7 +107,8 @@
       "path": "/users/:id",
       "statusCode": 204,
       "headers": {},
-      "delay": 300
+      "delay": 300,
+      "response": {}
     },
     {
       "id": "getAuthToken",
