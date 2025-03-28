@@ -27,3 +27,4 @@ logs
 
 # Mac system files
 **/.DS_Store
+.qodo

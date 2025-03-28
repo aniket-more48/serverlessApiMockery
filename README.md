@@ -11,6 +11,7 @@ A flexible, configurable mock API server for development and testing. Designed t
 - ✅ **Path parameter support** (`:id` style path parameters)
 - ✅ **Flexible storage backends** (Memory, S3, File System)
 - ✅ **Response templating** with body, path, and query parameter interpolation
+- ✅ **Date expressions** for dynamic timestamp generation
 - ✅ **Configurable response delays** for simulating network conditions
 - ✅ **Express middleware** for easy integration
 - ✅ **Serverless-compatible** with AWS Lambda support
@@ -76,6 +77,65 @@ app.use(mockApi.middleware());
 // Export the serverless handler
 exports.handler = serverless(app);
 ```
+
+## Example Mock API Configuration
+
+We provide a comprehensive example configuration file that you can use as a starting point for your mock API. This file includes examples of various route types, response formats, and features like path parameters, query parameters, and date expressions.
+
+You can find this file at [examples/mock-api-routes.json](examples/mock-api-routes.json).
+
+To use this example configuration with file system storage:
+
+```javascript
+const express = require('express');
+const path = require('path');
+const fs = require('fs');
+const ServerlessApiMockery = require('serverless-api-mockery');
+
+const app = express();
+app.use(express.json());
+
+// Copy the example file to your project
+const examplePath = path.join(__dirname, 'node_modules/serverless-api-mockery/examples/mock-api-routes.json');
+const targetPath = path.join(__dirname, 'mock-api-routes.json');
+
+// Only copy if the target doesn't exist
+if (!fs.existsSync(targetPath)) {
+  fs.copyFileSync(examplePath, targetPath);
+  console.log(`Example mock API configuration copied to ${targetPath}`);
+}
+
+// Create a mock API with file system storage
+const mockApi = new ServerlessApiMockery({
+  storage: new ServerlessApiMockery.StorageAdapter.FileSystem({
+    filePath: targetPath
+  })
+});
+
+// Add management routes
+mockApi.setupManagementRoutes(app);
+
+// Use the mock API middleware
+app.use(mockApi.middleware());
+
+// Start the server
+app.listen(3000, () => {
+  console.log('Mock API server running on port 3000');
+});
+```
+
+This example configuration includes:
+- User management endpoints (GET, POST, PUT, DELETE)
+- Authentication endpoints
+- Product catalog endpoints
+- Order management endpoints
+- Error response examples
+- Various HTTP status codes
+- Custom headers
+- Response delays
+- Path and query parameters
+- Request body processing
+- Date expressions
 
 ## Lambda Catch-All Pattern
 
@@ -162,6 +222,18 @@ The mock API data is configured in a JSON format as follows:
         "username": "{body.username}",
         "email": "{body.email}"
       }
+    },
+    {
+      "id": "getAuthToken",
+      "name": "Get Auth Token",
+      "method": "POST",
+      "path": "/auth/token",
+      "statusCode": 200,
+      "response": {
+        "token": "sample-token",
+        "issuedAt": "{date:currentDate}",
+        "expiresAt": "{date:currentDate+3600}"
+      }
     }
   ]
 }
@@ -246,6 +318,41 @@ You can use placeholders in your response templates:
 - `{params.paramName}` - Path parameters
 - `{query.paramName}` - Query parameters
 - `{body.field}` - Request body fields (supports nested paths: `body.user.name`)
+- `{date:expression}` - Dynamic date expressions (see below)
+
+### Date Expressions
+
+You can use date expressions to generate dynamic timestamps in your responses:
+
+- `{date:currentDate}` - Current timestamp in epoch seconds
+- `{date:currentDate+N}` - Current timestamp plus N seconds
+- `{date:currentDate-N}` - Current timestamp minus N seconds
+
+#### Example
+
+```json
+{
+  "routes": [
+    {
+      "id": "getAuthToken",
+      "method": "POST",
+      "path": "/auth/token",
+      "statusCode": 200,
+      "response": {
+        "token": "sample-token",
+        "issuedAt": "{date:currentDate}",
+        "expiresAt": "{date:currentDate+3600}",
+        "refreshExpiresAt": "{date:currentDate+604800}"
+      }
+    }
+  ]
+}
+```
+
+This will return a response with:
+- `issuedAt`: Current timestamp in epoch seconds
+- `expiresAt`: Current timestamp + 1 hour (3600 seconds)
+- `refreshExpiresAt`: Current timestamp + 1 week (604800 seconds)
 
 ## Management Endpoints
 
@@ -269,6 +376,297 @@ class CustomAdapter extends StorageAdapter.Base {
   }
 }
 ```
+
+## Advanced Usage
+
+### Conditional Responses
+
+You can implement conditional responses based on request parameters by using custom middleware before the ServerlessApiMockery middleware:
+
+```javascript
+// Custom middleware for conditional responses
+app.use((req, res, next) => {
+  // Example: Return different responses based on a query parameter
+  if (req.path === '/users' && req.query.status === 'inactive') {
+    // Redirect to a specific mock route
+    req.url = '/users/inactive';
+  }
+  
+  // Example: Simulate authentication errors
+  if (req.path === '/auth/login') {
+    const { username, password } = req.body || {};
+    
+    if (!username || !password) {
+      req.url = '/auth/login/invalid-credentials';
+    } else if (username === 'locked') {
+      req.url = '/auth/login/account-locked';
+    } else {
+      req.url = '/auth/login/success';
+    }
+  }
+  
+  next();
+});
+
+// Use the mock API middleware after your custom middleware
+app.use(mockApi.middleware());
+```
+
+This approach allows you to create a single endpoint that returns different responses based on the request content, without needing to define separate routes for each scenario.
+
+### Custom Response Processors
+
+You can extend the response processor to add custom functionality, such as random data generation:
+
+```javascript
+const MockApiResponseProcessor = require('serverless-api-mockery/lib/processor');
+
+class CustomResponseProcessor extends MockApiResponseProcessor {
+  constructor() {
+    super();
+  }
+  
+  // Add a method to generate random data
+  processRandomExpression(expression) {
+    if (expression === 'uuid') {
+      // Generate a UUID-like string
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+    
+    if (expression === 'number') {
+      // Generate a random number between 1 and 1000
+      return Math.floor(Math.random() * 1000) + 1;
+    }
+    
+    if (expression.startsWith('number:')) {
+      // Generate a random number in a specific range (number:min-max)
+      const range = expression.split(':')[1];
+      const [min, max] = range.split('-').map(Number);
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    
+    return null;
+  }
+  
+  // Override the interpolateString method to add support for random expressions
+  interpolateString(str, params) {
+    // First process with the parent method
+    let result = super.interpolateString(str, params);
+    
+    // Then process our custom random expressions
+    result = result.replace(/\{random:([^}]+)\}/g, (match, expression) => {
+      const value = this.processRandomExpression(expression);
+      return value !== null ? value : match;
+    });
+    
+    return result;
+  }
+}
+
+// Create a mock API with our custom processor
+const mockApi = new ServerlessApiMockery();
+mockApi.processor = new CustomResponseProcessor();
+```
+
+With this custom processor, you can use expressions like `{random:uuid}`, `{random:number}`, or `{random:number:10-100}` in your response templates.
+
+### Dynamic Mock Data
+
+You can use the `mockData` property in your configuration to store reusable data that can be referenced across multiple routes:
+
+```json
+{
+  "routes": [
+    {
+      "id": "getUsers",
+      "method": "GET",
+      "path": "/users",
+      "response": {
+        "users": "{mockData.users}"
+      }
+    },
+    {
+      "id": "getProducts",
+      "method": "GET",
+      "path": "/products",
+      "response": {
+        "products": "{mockData.products}"
+      }
+    }
+  ],
+  "mockData": {
+    "users": [
+      { "id": 1, "name": "John Doe" },
+      { "id": 2, "name": "Jane Smith" }
+    ],
+    "products": [
+      { "id": "p1", "name": "Product 1", "price": 99.99 },
+      { "id": "p2", "name": "Product 2", "price": 49.99 }
+    ]
+  }
+}
+```
+
+This approach allows you to maintain a single source of truth for your mock data, making it easier to update and maintain.
+
+### Testing with ServerlessApiMockery
+
+ServerlessApiMockery is ideal for testing your frontend applications or API clients. Here's how to use it in your test suite:
+
+```javascript
+const request = require('supertest');
+const express = require('express');
+const path = require('path');
+const ServerlessApiMockery = require('serverless-api-mockery');
+
+describe('API Tests', function() {
+  let app;
+  let server;
+  
+  before(async function() {
+    // Create Express app
+    app = express();
+    app.use(express.json());
+    
+    // Create mock API with file storage
+    const mockApi = new ServerlessApiMockery({
+      storage: new ServerlessApiMockery.StorageAdapter.FileSystem({
+        filePath: path.join(__dirname, 'test-mock-data.json')
+      })
+    });
+    
+    // Setup routes
+    mockApi.setupManagementRoutes(app);
+    app.use(mockApi.middleware());
+    
+    // Start server
+    server = app.listen(3000);
+  });
+  
+  after(function() {
+    server.close();
+  });
+  
+  it('should get user data', async function() {
+    const response = await request(app)
+      .get('/users/123')
+      .expect(200);
+      
+    expect(response.body).to.have.property('id', '123');
+  });
+  
+  // More tests...
+});
+```
+
+### Performance Optimization
+
+#### Caching
+
+ServerlessApiMockery includes built-in caching to reduce storage access. You can configure the cache TTL (time-to-live) when creating the instance:
+
+```javascript
+const mockApi = new ServerlessApiMockery({
+  cacheTtl: 300000 // 5 minutes in milliseconds
+});
+```
+
+For AWS Lambda environments, a longer cache TTL can significantly reduce S3 access costs and improve response times.
+
+#### Response Delays
+
+While the `delay` property is useful for simulating real-world conditions during development, you might want to disable delays in test environments for faster test execution:
+
+```javascript
+// Custom middleware to override delays in test environment
+app.use((req, res, next) => {
+  if (process.env.NODE_ENV === 'test') {
+    // Find the route and set delay to 0
+    mockApi.getApiData().then(data => {
+      data.routes.forEach(route => {
+        route.delay = 0;
+      });
+      next();
+    });
+  } else {
+    next();
+  }
+});
+```
+
+### Docker Deployment
+
+You can deploy ServerlessApiMockery as a Docker container:
+
+```dockerfile
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install --production
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]
+```
+
+Example `server.js`:
+
+```javascript
+const express = require('express');
+const ServerlessApiMockery = require('serverless-api-mockery');
+const path = require('path');
+
+const app = express();
+app.use(express.json());
+
+const mockApi = new ServerlessApiMockery({
+  storage: new ServerlessApiMockery.StorageAdapter.FileSystem({
+    filePath: path.join(__dirname, 'mock-api-data.json')
+  })
+});
+
+mockApi.setupManagementRoutes(app);
+app.use(mockApi.middleware());
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Mock API server running on port ${PORT}`);
+});
+```
+
+### Troubleshooting
+
+#### Routes Not Matching
+
+If your routes aren't matching as expected:
+
+1. Check that the HTTP method matches exactly (case-insensitive)
+2. Ensure path parameters are correctly formatted (`:paramName`)
+3. Verify that more specific routes come before parameterized routes in your configuration
+
+#### S3 Storage Issues
+
+When using S3 storage:
+
+1. Ensure your Lambda has the correct IAM permissions
+2. Check that the S3 bucket exists and is accessible
+3. Verify region settings match your bucket's region
+
+#### Response Templating
+
+If response templating isn't working:
+
+1. Check the syntax of your placeholders (`{params.id}`, `{query.q}`, etc.)
+2. Ensure nested paths are correctly specified for body parameters
+3. Verify that date expressions follow the correct format
 
 ## Contributing
 

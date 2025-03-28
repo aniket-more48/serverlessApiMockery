@@ -1,10 +1,12 @@
 {
   "name": "serverless-api-mockery",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "A flexible API mocking library with customizable storage backends",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "mocha test/*.test.js",
+    "test:unit": "mocha test/storage.test.js test/file-storage.test.js",
+    "test:integration": "mocha test/file-storage-integration.test.js",
     "lint": "eslint ."
   },
   "keywords": [
@@ -32,9 +34,12 @@
     "express": "^4.17.1"
   },
   "devDependencies": {
+    "chai": "^4.3.7",
     "eslint": "^8.10.0",
     "express": "^4.17.1",
-    "jest": "^27.5.1"
+    "mocha": "^10.2.0",
+    "sinon": "^15.2.0",
+    "supertest": "^6.3.3"
   },
   "engines": {
     "node": ">=12.0.0"

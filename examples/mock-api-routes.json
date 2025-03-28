@@ -1,0 +1,381 @@
+{
+  "routes": [
+    {
+      "id": "getUserById",
+      "name": "Get User By ID",
+      "method": "GET",
+      "path": "/users/:id",
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": "application/json",
+        "Cache-Control": "max-age=3600"
+      },
+      "delay": 200,
+      "response": {
+        "id": "{params.id}",
+        "name": "User {params.id}",
+        "email": "user{params.id}@example.com",
+        "role": "user",
+        "createdAt": "{date:currentDate-2592000}",
+        "lastLogin": "{date:currentDate-86400}"
+      }
+    },
+    {
+      "id": "searchUsers",
+      "name": "Search Users",
+      "method": "GET",
+      "path": "/users",
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "delay": 300,
+      "response": {
+        "query": "{query.q}",
+        "sort": "{query.sort}",
+        "page": "{query.page}",
+        "limit": "{query.limit}",
+        "timestamp": "{date:currentDate}",
+        "users": [
+          { 
+            "id": 1, 
+            "name": "John Doe", 
+            "email": "john@example.com",
+            "role": "admin"
+          },
+          { 
+            "id": 2, 
+            "name": "Jane Smith", 
+            "email": "jane@example.com",
+            "role": "user"
+          },
+          { 
+            "id": 3, 
+            "name": "Bob Johnson", 
+            "email": "bob@example.com",
+            "role": "user"
+          }
+        ]
+      }
+    },
+    {
+      "id": "createUser",
+      "name": "Create User",
+      "method": "POST",
+      "path": "/users",
+      "statusCode": 201,
+      "headers": {
+        "Content-Type": "application/json",
+        "Location": "/users/12345"
+      },
+      "delay": 500,
+      "response": {
+        "success": true,
+        "message": "User created successfully",
+        "id": "12345",
+        "username": "{body.username}",
+        "email": "{body.email}",
+        "createdAt": "{date:currentDate}"
+      }
+    },
+    {
+      "id": "updateUser",
+      "name": "Update User",
+      "method": "PUT",
+      "path": "/users/:id",
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "delay": 400,
+      "response": {
+        "success": true,
+        "message": "User updated successfully",
+        "id": "{params.id}",
+        "updatedFields": {
+          "username": "{body.username}",
+          "email": "{body.email}",
+          "profile": "{body.profile}"
+        },
+        "updatedAt": "{date:currentDate}"
+      }
+    },
+    {
+      "id": "deleteUser",
+      "name": "Delete User",
+      "method": "DELETE",
+      "path": "/users/:id",
+      "statusCode": 204,
+      "headers": {},
+      "delay": 300
+    },
+    {
+      "id": "getAuthToken",
+      "name": "Get Auth Token",
+      "method": "POST",
+      "path": "/auth/token",
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "delay": 400,
+      "response": {
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+        "username": "{body.username}",
+        "issuedAt": "{date:currentDate}",
+        "expiresAt": "{date:currentDate+3600}",
+        "refreshExpiresAt": "{date:currentDate+604800}"
+      }
+    },
+    {
+      "id": "refreshAuthToken",
+      "name": "Refresh Auth Token",
+      "method": "POST",
+      "path": "/auth/refresh",
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "delay": 300,
+      "response": {
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+        "refreshToken": "{body.refreshToken}",
+        "issuedAt": "{date:currentDate}",
+        "expiresAt": "{date:currentDate+3600}"
+      }
+    },
+    {
+      "id": "getProducts",
+      "name": "Get Products",
+      "method": "GET",
+      "path": "/products",
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": "application/json",
+        "Cache-Control": "max-age=3600"
+      },
+      "delay": 200,
+      "response": {
+        "category": "{query.category}",
+        "minPrice": "{query.minPrice}",
+        "maxPrice": "{query.maxPrice}",
+        "sort": "{query.sort}",
+        "page": "{query.page}",
+        "limit": "{query.limit}",
+        "timestamp": "{date:currentDate}",
+        "products": [
+          {
+            "id": "p1",
+            "name": "Product 1",
+            "category": "electronics",
+            "price": 99.99,
+            "inStock": true
+          },
+          {
+            "id": "p2",
+            "name": "Product 2",
+            "category": "clothing",
+            "price": 49.99,
+            "inStock": true
+          },
+          {
+            "id": "p3",
+            "name": "Product 3",
+            "category": "electronics",
+            "price": 199.99,
+            "inStock": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "getProductById",
+      "name": "Get Product By ID",
+      "method": "GET",
+      "path": "/products/:id",
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": "application/json",
+        "Cache-Control": "max-age=3600"
+      },
+      "delay": 150,
+      "response": {
+        "id": "{params.id}",
+        "name": "Product {params.id}",
+        "description": "Detailed description of product {params.id}",
+        "category": "electronics",
+        "price": 99.99,
+        "inStock": true,
+        "images": [
+          "https://example.com/images/product{params.id}_1.jpg",
+          "https://example.com/images/product{params.id}_2.jpg"
+        ],
+        "specs": {
+          "weight": "1.5kg",
+          "dimensions": "10 x 20 x 5 cm",
+          "color": "black"
+        }
+      }
+    },
+    {
+      "id": "createOrder",
+      "name": "Create Order",
+      "method": "POST",
+      "path": "/orders",
+      "statusCode": 201,
+      "headers": {
+        "Content-Type": "application/json",
+        "Location": "/orders/ord-12345"
+      },
+      "delay": 700,
+      "response": {
+        "success": true,
+        "orderId": "ord-12345",
+        "timestamp": "{date:currentDate}",
+        "customer": {
+          "name": "{body.customer.name}",
+          "email": "{body.customer.email}",
+          "address": "{body.customer.address}"
+        },
+        "items": "{body.items}",
+        "total": "{body.total}",
+        "paymentMethod": "{body.paymentMethod}",
+        "estimatedDelivery": "{date:currentDate+432000}"
+      }
+    },
+    {
+      "id": "getOrderById",
+      "name": "Get Order By ID",
+      "method": "GET",
+      "path": "/orders/:id",
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "delay": 300,
+      "response": {
+        "id": "{params.id}",
+        "status": "processing",
+        "createdAt": "{date:currentDate-86400}",
+        "customer": {
+          "name": "John Doe",
+          "email": "john@example.com",
+          "address": "123 Main St, Anytown, USA"
+        },
+        "items": [
+          {
+            "productId": "p1",
+            "name": "Product 1",
+            "quantity": 2,
+            "price": 99.99
+          },
+          {
+            "productId": "p2",
+            "name": "Product 2",
+            "quantity": 1,
+            "price": 49.99
+          }
+        ],
+        "total": 249.97,
+        "paymentMethod": "credit_card",
+        "estimatedDelivery": "{date:currentDate+345600}"
+      }
+    },
+    {
+      "id": "errorNotFound",
+      "name": "Error - Not Found",
+      "method": "GET",
+      "path": "/error/not-found",
+      "statusCode": 404,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "response": {
+        "error": "Not Found",
+        "message": "The requested resource was not found",
+        "path": "/error/not-found",
+        "timestamp": "{date:currentDate}"
+      }
+    },
+    {
+      "id": "errorUnauthorized",
+      "name": "Error - Unauthorized",
+      "method": "GET",
+      "path": "/error/unauthorized",
+      "statusCode": 401,
+      "headers": {
+        "Content-Type": "application/json",
+        "WWW-Authenticate": "Bearer"
+      },
+      "response": {
+        "error": "Unauthorized",
+        "message": "Authentication is required to access this resource",
+        "path": "/error/unauthorized",
+        "timestamp": "{date:currentDate}"
+      }
+    },
+    {
+      "id": "errorForbidden",
+      "name": "Error - Forbidden",
+      "method": "GET",
+      "path": "/error/forbidden",
+      "statusCode": 403,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "response": {
+        "error": "Forbidden",
+        "message": "You do not have permission to access this resource",
+        "path": "/error/forbidden",
+        "timestamp": "{date:currentDate}"
+      }
+    },
+    {
+      "id": "errorServerError",
+      "name": "Error - Server Error",
+      "method": "GET",
+      "path": "/error/server-error",
+      "statusCode": 500,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "response": {
+        "error": "Internal Server Error",
+        "message": "An unexpected error occurred while processing your request",
+        "path": "/error/server-error",
+        "timestamp": "{date:currentDate}",
+        "requestId": "req-12345"
+      }
+    }
+  ],
+  "mockData": {
+    "users": [
+      {
+        "id": 1,
+        "name": "John Doe",
+        "email": "john@example.com",
+        "role": "admin"
+      },
+      {
+        "id": 2,
+        "name": "Jane Smith",
+        "email": "jane@example.com",
+        "role": "user"
+      }
+    ],
+    "products": [
+      {
+        "id": "p1",
+        "name": "Product 1",
+        "category": "electronics",
+        "price": 99.99
+      },
+      {
+        "id": "p2",
+        "name": "Product 2",
+        "category": "clothing",
+        "price": 49.99
+      }
+    ]
+  }
+}
