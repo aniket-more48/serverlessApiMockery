@@ -17,7 +17,9 @@
         "email": "user{params.id}@example.com",
         "role": "user",
         "createdAt": "{date:currentDate-2592000}",
-        "lastLogin": "{date:currentDate-86400}"
+        "createdAtPrecise": "{date:currentDate(ms)-2592000000}",
+        "lastLogin": "{date:currentDate-86400}",
+        "lastLoginPrecise": "{date:currentDate(ms)-86400000}"
       }
     },
     {
@@ -36,6 +38,7 @@
         "page": "{query.page}",
         "limit": "{query.limit}",
         "timestamp": "{date:currentDate}",
+        "timestampMs": "{date:currentDate(ms)}",
         "users": [
           {
             "id": 1,
@@ -75,7 +78,8 @@
         "id": "12345",
         "username": "{body.username}",
         "email": "{body.email}",
-        "createdAt": "{date:currentDate}"
+        "createdAt": "{date:currentDate}",
+        "createdAtMs": "{date:currentDate(ms)}"
       }
     },
     {
@@ -97,7 +101,8 @@
           "email": "{body.email}",
           "profile": "{body.profile}"
         },
-        "updatedAt": "{date:currentDate}"
+        "updatedAt": "{date:currentDate}",
+        "updatedAtMs": "{date:currentDate(ms)}"
       }
     },
     {
@@ -124,8 +129,11 @@
         "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
         "username": "{body.username}",
         "issuedAt": "{date:currentDate}",
+        "issuedAtMs": "{date:currentDate(ms)}",
         "expiresAt": "{date:currentDate+3600}",
-        "refreshExpiresAt": "{date:currentDate+604800}"
+        "expiresAtMs": "{date:currentDate(ms)+3600000}",
+        "refreshExpiresAt": "{date:currentDate+604800}",
+        "refreshExpiresAtMs": "{date:currentDate(ms)+604800000}"
       }
     },
     {
@@ -142,7 +150,9 @@
         "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
         "refreshToken": "{body.refreshToken}",
         "issuedAt": "{date:currentDate}",
-        "expiresAt": "{date:currentDate+3600}"
+        "issuedAtMs": "{date:currentDate(ms)}",
+        "expiresAt": "{date:currentDate+3600}",
+        "expiresAtMs": "{date:currentDate(ms)+3600000}"
       }
     },
     {
@@ -164,6 +174,7 @@
         "page": "{query.page}",
         "limit": "{query.limit}",
         "timestamp": "{date:currentDate}",
+        "timestampMs": "{date:currentDate(ms)}",
         "products": [
           {
             "id": "p1",
@@ -233,6 +244,7 @@
         "success": true,
         "orderId": "ord-12345",
         "timestamp": "{date:currentDate}",
+        "timestampMs": "{date:currentDate(ms)}",
         "customer": {
           "name": "{body.customer.name}",
           "email": "{body.customer.email}",
@@ -241,7 +253,8 @@
         "items": "{body.items}",
         "total": "{body.total}",
         "paymentMethod": "{body.paymentMethod}",
-        "estimatedDelivery": "{date:currentDate+432000}"
+        "estimatedDelivery": "{date:currentDate+432000}",
+        "estimatedDeliveryMs": "{date:currentDate(ms)+432000000}"
       }
     },
     {
@@ -258,6 +271,7 @@
         "id": "{params.id}",
         "status": "processing",
         "createdAt": "{date:currentDate-86400}",
+        "createdAtMs": "{date:currentDate(ms)-86400000}",
         "customer": {
           "name": "John Doe",
           "email": "john@example.com",
@@ -279,7 +293,8 @@
         ],
         "total": 249.97,
         "paymentMethod": "credit_card",
-        "estimatedDelivery": "{date:currentDate+345600}"
+        "estimatedDelivery": "{date:currentDate+345600}",
+        "estimatedDeliveryMs": "{date:currentDate(ms)+345600000}"
       }
     },
     {
@@ -295,7 +310,8 @@
         "error": "Not Found",
         "message": "The requested resource was not found",
         "path": "/error/not-found",
-        "timestamp": "{date:currentDate}"
+        "timestamp": "{date:currentDate}",
+        "timestampMs": "{date:currentDate(ms)}"
       }
     },
     {
@@ -312,7 +328,8 @@
         "error": "Unauthorized",
         "message": "Authentication is required to access this resource",
         "path": "/error/unauthorized",
-        "timestamp": "{date:currentDate}"
+        "timestamp": "{date:currentDate}",
+        "timestampMs": "{date:currentDate(ms)}"
       }
     },
     {
@@ -328,7 +345,8 @@
         "error": "Forbidden",
         "message": "You do not have permission to access this resource",
         "path": "/error/forbidden",
-        "timestamp": "{date:currentDate}"
+        "timestamp": "{date:currentDate}",
+        "timestampMs": "{date:currentDate(ms)}"
       }
     },
     {
@@ -345,7 +363,32 @@
         "message": "An unexpected error occurred while processing your request",
         "path": "/error/server-error",
         "timestamp": "{date:currentDate}",
+        "timestampMs": "{date:currentDate(ms)}",
         "requestId": "req-12345"
+      }
+    },
+    {
+      "id": "getHighPrecisionTimestamps",
+      "name": "Get High Precision Timestamps",
+      "method": "GET",
+      "path": "/timestamps",
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "delay": 100,
+      "response": {
+        "description": "Example of various timestamp formats",
+        "currentTimeSeconds": "{date:currentDate}",
+        "currentTimeMilliseconds": "{date:currentDate(ms)}",
+        "oneHourAgoSeconds": "{date:currentDate-3600}",
+        "oneHourAgoMilliseconds": "{date:currentDate(ms)-3600000}",
+        "oneDayLaterSeconds": "{date:currentDate+86400}",
+        "oneDayLaterMilliseconds": "{date:currentDate(ms)+86400000}",
+        "oneWeekLaterSeconds": "{date:currentDate+604800}",
+        "oneWeekLaterMilliseconds": "{date:currentDate(ms)+604800000}",
+        "oneMonthAgoSeconds": "{date:currentDate-2592000}",
+        "oneMonthAgoMilliseconds": "{date:currentDate(ms)-2592000000}"
       }
     }
   ],

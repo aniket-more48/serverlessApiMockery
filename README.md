@@ -11,7 +11,7 @@ A flexible, configurable mock API server for development and testing. Designed t
 - ✅ **Path parameter support** (`:id` style path parameters)
 - ✅ **Flexible storage backends** (Memory, S3, File System)
 - ✅ **Response templating** with body, path, and query parameter interpolation
-- ✅ **Date expressions** for dynamic timestamp generation
+- ✅ **Date expressions** for dynamic timestamp generation (seconds or milliseconds precision)
 - ✅ **Configurable response delays** for simulating network conditions
 - ✅ **Express middleware** for easy integration
 - ✅ **Serverless-compatible** with AWS Lambda support
@@ -325,8 +325,11 @@ You can use placeholders in your response templates:
 You can use date expressions to generate dynamic timestamps in your responses:
 
 - `{date:currentDate}` - Current timestamp in epoch seconds
+- `{date:currentDate(ms)}` - Current timestamp in epoch milliseconds
 - `{date:currentDate+N}` - Current timestamp plus N seconds
 - `{date:currentDate-N}` - Current timestamp minus N seconds
+- `{date:currentDate(ms)+N}` - Current timestamp plus N milliseconds
+- `{date:currentDate(ms)-N}` - Current timestamp minus N milliseconds
 
 #### Example
 
@@ -341,7 +344,9 @@ You can use date expressions to generate dynamic timestamps in your responses:
       "response": {
         "token": "sample-token",
         "issuedAt": "{date:currentDate}",
+        "issuedAtMs": "{date:currentDate(ms)}",
         "expiresAt": "{date:currentDate+3600}",
+        "expiresAtMs": "{date:currentDate(ms)+3600000}",
         "refreshExpiresAt": "{date:currentDate+604800}"
       }
     }
@@ -351,7 +356,9 @@ You can use date expressions to generate dynamic timestamps in your responses:
 
 This will return a response with:
 - `issuedAt`: Current timestamp in epoch seconds
+- `issuedAtMs`: Current timestamp in epoch milliseconds
 - `expiresAt`: Current timestamp + 1 hour (3600 seconds)
+- `expiresAtMs`: Current timestamp + 1 hour (3600000 milliseconds)
 - `refreshExpiresAt`: Current timestamp + 1 week (604800 seconds)
 
 ## Management Endpoints

@@ -69,6 +69,39 @@ describe('ServerlessApiMockery Integration', () => {
             future: '{date:currentDate+60}',
             past: '{date:currentDate-60}'
           }
+        },
+        {
+          id: 'dateResponseMilliseconds',
+          method: 'GET',
+          path: '/dates/ms',
+          statusCode: 200,
+          response: {
+            current: '{date:currentDate(ms)}',
+            future: '{date:currentDate(ms)+60000}',
+            past: '{date:currentDate(ms)-60000}'
+          }
+        },
+        {
+          id: 'mixedDateResponse',
+          method: 'GET',
+          path: '/dates/mixed',
+          statusCode: 200,
+          response: {
+            seconds: '{date:currentDate}',
+            milliseconds: '{date:currentDate(ms)}',
+            futureSeconds: '{date:currentDate+3600}',
+            futureMilliseconds: '{date:currentDate(ms)+3600000}'
+          }
+        },
+        {
+          id: 'pureDateResponse',
+          method: 'GET',
+          path: '/dates/pure',
+          statusCode: 200,
+          response: {
+            pureSeconds: "{date:currentDate}",
+            pureMilliseconds: "{date:currentDate(ms)}"
+          }
         }
       ],
       mockData: {}
@@ -135,7 +168,7 @@ describe('ServerlessApiMockery Integration', () => {
       });
     });
     
-    it('should process date expressions correctly', async () => {
+    it('should process date expressions correctly (seconds)', async () => {
       const response = await request(app)
         .get('/dates');
       
@@ -147,6 +180,54 @@ describe('ServerlessApiMockery Integration', () => {
         future: (currentTimestamp + 60).toString(),
         past: (currentTimestamp - 60).toString()
       });
+    });
+
+    it('should process date expressions correctly with millisecond precision', async () => {
+      const response = await request(app)
+        .get('/dates/ms');
+      
+      const currentTimestampMs = Date.now();
+      
+      expect(response.status).to.equal(200);
+      expect(response.body).to.deep.equal({
+        current: currentTimestampMs.toString(),
+        future: (currentTimestampMs + 60000).toString(),
+        past: (currentTimestampMs - 60000).toString()
+      });
+    });
+
+    it('should handle mixed second and millisecond date expressions', async () => {
+      const response = await request(app)
+        .get('/dates/mixed');
+      
+      const currentTimestampSec = Math.floor(Date.now() / 1000);
+      const currentTimestampMs = Date.now();
+      
+      expect(response.status).to.equal(200);
+      expect(response.body).to.deep.equal({
+        seconds: currentTimestampSec.toString(),
+        milliseconds: currentTimestampMs.toString(),
+        futureSeconds: (currentTimestampSec + 3600).toString(),
+        futureMilliseconds: (currentTimestampMs + 3600000).toString()
+      });
+    });
+
+    it('should return pure date expressions as numbers, not strings', async () => {
+      const response = await request(app)
+        .get('/dates/pure');
+      
+      const currentTimestampSec = Math.floor(Date.now() / 1000);
+      const currentTimestampMs = Date.now();
+      
+      expect(response.status).to.equal(200);
+      expect(response.body).to.deep.equal({
+        pureSeconds: currentTimestampSec,
+        pureMilliseconds: currentTimestampMs
+      });
+      
+      // Verify the types are numbers, not strings
+      expect(typeof response.body.pureSeconds).to.equal('number');
+      expect(typeof response.body.pureMilliseconds).to.equal('number');
     });
   });
   
